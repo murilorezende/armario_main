@@ -1,26 +1,15 @@
-# Etapa 1: build
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /app
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-# Copia os arquivos do projeto e restaura dependências
-COPY . .
-WORKDIR /app/src/Armario42
-RUN dotnet restore
-RUN dotnet publish -c Release -o /out
+var builder = WebApplication.CreateBuilder(args);
 
-# Etapa 2: runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-WORKDIR /app
-COPY --from=build /out .
+// Replace AddSimpleConsole with AddConsole
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
-# Configuração para Azure App Service
-ENV ASPNETCORE_URLS=http://+:8080
-ENV ASPNETCORE_ENVIRONMENT=Production
-ENV DOTNET_CONSOLE_LOGGER_ENABLED=true
-ENV DOTNET_LOGGING__CONSOLE__DISABLECOLORS=true
-ENV DOTNET_LOGGING__CONSOLE__FORMAT=json
+var app = builder.Build();
 
-# Criar diretório para logs
-RUN mkdir -p /app/logs && chmod 777 /app/logs
+app.MapGet("/", () => "Hello World!");
 
-ENTRYPOINT ["dotnet", "Armario42.dll"]
+app.Run();
