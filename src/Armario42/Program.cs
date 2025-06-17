@@ -24,7 +24,6 @@ try
         throw new InvalidOperationException("Connection string 'DefaultConnection' não foi encontrada.");
     }
 
-    // builder.Configuration.GetConnectionString() também lê variáveis de ambiente como ConnectionStrings__DefaultConnection
     builder.Services.AddDbContext<AppDbContext>(options =>
     {
         options.UseNpgsql(connectionString);
@@ -41,11 +40,12 @@ try
     app.Urls.Clear();
     app.Urls.Add($"http://*:{port}");
 
-    // Executar migrations automaticamente (se necessário)
-    using (var scope = app.Services.CreateScope())
+    // Aplicar migrations apenas em desenvolvimento
+    if (app.Environment.IsDevelopment())
     {
-        Console.WriteLine("Aplicando migrations...");
+        using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        Console.WriteLine("Aplicando migrations (dev)...");
         db.Database.Migrate();
         Console.WriteLine("Migrations aplicadas com sucesso");
     }
