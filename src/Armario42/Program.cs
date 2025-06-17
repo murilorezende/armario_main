@@ -10,11 +10,7 @@ try
 
     // Logging configurado
     builder.Logging.ClearProviders();
-    builder.Logging.AddConsole(options =>
-    {
-        // Usa o formato padrão (evita erro com 'json')
-        options.Format = Microsoft.Extensions.Logging.Console.ConsoleLoggerFormat.Default;
-    });
+    builder.Logging.AddSimpleConsole();
     builder.Logging.AddDebug();
     builder.Logging.SetMinimumLevel(LogLevel.Debug);
 
